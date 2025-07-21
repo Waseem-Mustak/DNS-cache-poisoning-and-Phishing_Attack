@@ -38,6 +38,8 @@ services:
   attacker:
     build: ./attacker
     container_name: attacker
+    ports:
+      - "8099:80"  # Phishing server accessible from host
     networks:
       project_net:
         ipv4_address: 10.0.0.50
