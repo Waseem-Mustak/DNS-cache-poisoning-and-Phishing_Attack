@@ -1,0 +1,65 @@
+services:
+
+  resolver:
+    build: ./resolver
+    container_name: resolver
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.20
+    volumes:
+      - ./resolver/named.conf.options:/etc/bind/named.conf.options
+    ports:
+      - "53:53/udp"
+
+  proxy-dns:
+    build: ./proxy
+    container_name: proxy-dns
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.40
+    volumes:
+      - ./proxy/named.conf.options:/etc/bind/named.conf.options
+    cap_add:
+      - NET_ADMIN
+    # entrypoint in Dockerfile introduces 500ms delay
+
+  auth-dns:
+    build: ./auth-dns
+    container_name: auth-dns
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.30
+    volumes:
+      - ./auth-dns/named.conf.local:/etc/bind/named.conf.local
+      - ./auth-dns/db.bank.lab:/etc/bind/db.bank.lab
+    ports:
+      - "5354:53/udp"
+
+  attacker:
+    build: ./attacker
+    container_name: attacker
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.50
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    privileged: true
+    command: sleep infinity
+
+  victim:
+    build:
+      context: ./victim
+      dockerfile: Dockerfile
+    container_name: victim
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.10
+    tty: true
+
+networks:
+  project_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24

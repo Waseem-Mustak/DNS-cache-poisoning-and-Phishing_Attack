@@ -1,0 +1,19 @@
+options {
+    directory "/var/cache/bind";
+    recursion yes;
+    allow-query { any; };
+    forwarders { 10.0.0.50;10.0.0.40;  };
+    forward only;
+    dnssec-validation no;
+};
+
+logging {
+    channel query_log {
+        stderr;
+        severity info;
+        print-category yes;
+        print-severity yes;
+        print-time yes;
+    };
+    category queries { query_log; };
+};

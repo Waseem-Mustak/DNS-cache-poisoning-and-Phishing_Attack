@@ -1,0 +1,12 @@
+$TTL 10
+@   IN  SOA ns1.bank.lab. admin.bank.lab. (
+        2025071702 ; Serial (incremented)
+        3600       ; Refresh
+        1800       ; Retry
+        1209600    ; Expire
+        10         ; Negative Cache TTL (also set to 10 seconds)
+)
+@   IN  NS   ns1.bank.lab.
+ns1 IN  A    10.0.0.30
+www IN  A    10.0.0.80
+test IN  A   10.0.0.80

@@ -1,0 +1,15 @@
+zone "bank.lab" {
+    type master;
+    file "/etc/bind/db.bank.lab";
+};
+
+logging {
+    channel query_log {
+        stderr;
+        severity info;
+        print-category yes;
+        print-severity yes;
+        print-time yes;
+    };
+    category queries { query_log; };
+};
