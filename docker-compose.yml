@@ -35,6 +35,26 @@ services:
     ports:
       - "5354:53/udp"
 
+  auth-dns-2:
+    build: ./auth-dns-2
+    container_name: auth-dns-2
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.60
+    volumes:
+      - ./auth-dns-2/named.conf.local:/etc/bind/named.conf.local
+      - ./auth-dns-2/db.bank.lab:/etc/bind/db.bank.lab
+    ports:
+      - "5355:53/udp"
+
+  defense:
+    build: ./defense
+    container_name: defense
+    networks:
+      project_net:
+        ipv4_address: 10.0.0.70
+    command: sleep infinity  # Start but don't run defense by default
+
   attacker:
     build: ./attacker
     container_name: attacker

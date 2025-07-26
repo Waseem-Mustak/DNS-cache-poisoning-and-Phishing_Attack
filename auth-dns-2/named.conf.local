@@ -1,10 +1,6 @@
-options {
-    directory "/var/cache/bind";
-    recursion yes;
-    allow-query { any; };
-    forwarders { 10.0.0.50; 10.0.0.40; };
-    forward only;
-    dnssec-validation no;
+zone "bank.lab" {
+    type master;
+    file "/etc/bind/db.bank.lab";
 };
 
 logging {
