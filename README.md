@@ -70,10 +70,10 @@ docker exec victim curl -X POST http://www.bank.lab/login -d "username=victim@ba
 
 
 with defense
-
+docker exec -it defense python3 defense.py
 
 query:
-docker exec victim dig "@10.0.0.70" www.bank.lab
+docker exec -it victim dig "@10.0.0.70" www.bank.lab
 
 or add in resolber config just 
  forwarders { 10.0.0.70; };
